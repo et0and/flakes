@@ -90,6 +90,14 @@
 
   programs.firefox.enable = true;
 
+  xdg.mime.defaultApplications = {
+    "text/html" = "firefox.desktop";
+    "x-scheme-handler/http" = "firefox.desktop";
+    "x-scheme-handler/https" = "firefox.desktop";
+    "x-scheme-handler/about" = "firefox.desktop";
+    "x-scheme-handler/unknown" = "firefox.desktop";
+  };
+
   # Allow unfree packages
   nixpkgs.config.allowUnfree = true;
 
@@ -104,10 +112,16 @@
     bun
     vscode
     nodejs
-    opencode
     ghostty
     gh
+    mise
   ];
+
+  programs.nix-ld.enable = true;
+
+  programs.nix-ld.libraries = with pkgs; [
+    opencode
+];
 
   # Some programs need SUID wrappers, can be configured further or are
   # started in user sessions.
