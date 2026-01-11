@@ -14,9 +14,8 @@
         "extensions.update.autoUpdateDefault" = false;
         "privacy.trackingprotection.enabled" = true;
       };
-      extensions = with inputs.firefox-addons.packages.${pkgs.system}; [
+      extensions.packages = with inputs.firefox-addons.packages.${pkgs.system}; [
         ublock-origin
-        onepassword-password-manager
       ];
     };
   };
