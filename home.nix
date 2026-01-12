@@ -12,6 +12,7 @@
   home.stateVersion = "25.11";
   services.opencode = {
     enable = true;
+    configFile = ./opencode.jsonc;
     agents = {
       "code-reviewer" = {
         description = "Reviews code for bugs, security, and best practices";

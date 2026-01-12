@@ -12,7 +12,9 @@
 
   # Bootloader.
   boot.loader.systemd-boot.enable = true;
+  boot.loader.systemd-boot.configurationLimit = 3;
   boot.loader.efi.canTouchEfiVariables = true;
+  boot.kernelParams = [ "quiet" "loglevel=3" "rd.udev.log_priority=3" ];
 
   boot.initrd.luks.devices."luks-07e57a56-c55b-4f98-a81a-3f0213648c24".device = "/dev/disk/by-uuid/07e57a56-c55b-4f98-a81a-3f0213648c24";
   networking.hostName = "nixos"; # Define your hostname.
@@ -119,14 +121,15 @@
     nodejs
     ghostty
     gh
-    mise
     tailscale
+    tmux
   ];
 
   programs.nix-ld.enable = true;
 
   programs.nix-ld.libraries = with pkgs; [
     opencode
+    wrangler
 ];
 
   # Some programs need SUID wrappers, can be configured further or are

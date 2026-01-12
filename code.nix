@@ -10,6 +10,7 @@
         github.vscode-pull-request-github
         esbenp.prettier-vscode
         dbaeumer.vscode-eslint
+        catppuccin.catppuccin-vsc
       ];
       userSettings = {
         "editor.tabSize" = 2;
@@ -17,6 +18,7 @@
         "editor.formatOnPaste" = true;
         "editor.defaultFormatter" = "esbenp.prettier-vscode";
         "files.trimTrailingWhitespace" = true;
+        "workbench.colorTheme" = "Catppuccin Mocha";
       };
     };
   };

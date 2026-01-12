@@ -25,7 +25,7 @@ let
   '';
 
   # Generate agent files
-  generateAgents = agents: mapAttrs' (name: agent: nameValuePair "${name}.md" (agentToMarkdown name agent));
+  generateAgents = agents: mapAttrs' (name: agent: nameValuePair "${name}.md" (agentToMarkdown name agent)) agents;
 
   # Convert a command config to a markdown file
   commandToMarkdown = name: command: ''
@@ -39,12 +39,18 @@ let
   '';
 
   # Generate command files
-  generateCommands = commands: mapAttrs' (name: command: nameValuePair "${name}.md" (commandToMarkdown name command));
+  generateCommands = commands: mapAttrs' (name: command: nameValuePair "${name}.md" (commandToMarkdown name command)) commands;
 
 in
 {
   options.services.opencode = {
     enable = mkEnableOption "OpenCode agents and commands configuration";
+
+    configFile = mkOption {
+      type = types.nullOr types.path;
+      default = null;
+      description = "Path to opencode.jsonc configuration file";
+    };
 
     agents = mkOption {
       type = types.attrsOf (types.submodule {
@@ -157,6 +163,9 @@ in
 
   config = mkIf cfg.enable {
     xdg.configFile = {
+      "opencode/opencode.jsonc" = mkIf (cfg.configFile != null) {
+        source = cfg.configFile;
+      };
       "opencode/agent" = mkIf (cfg.agents != {}) {
         source = pkgs.linkFarm "opencode-agents" (
           (mapAttrsToList (name: content: {
