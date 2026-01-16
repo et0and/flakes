@@ -36,6 +36,34 @@
         { "hrsh7th/cmp-buffer" },
         { "hrsh7th/cmp-path" },
         { "L3MON4D3/LuaSnip" },
+        { "nvimtools/none-ls.nvim" },
+      })
+
+      -- Null-ls for formatting (prettier, eslint fix, etc.)
+      local null_ls = require("null-ls")
+      null_ls.setup({
+        sources = {
+          null_ls.builtins.formatting.prettier.with({
+            filetypes = { "typescript", "typescriptreact", "javascript", "json", "yaml", "markdown", "mdx" },
+          }),
+          null_ls.builtins.formatting.stylua.with({
+            filetypes = { "lua" },
+          }),
+          null_ls.builtins.formatting.shfmt.with({
+            filetypes = { "bash", "sh" },
+          }),
+        },
+        on_attach = function(client, bufnr)
+          vim.api.nvim_buf_set_option(bufnr, "omnifunc", "v:lua.vim.lsp.omnifunc")
+          local opts = { buffer = bufnr, noremap = true, silent = true }
+          vim.keymap.set("n", "gd", vim.lsp.buf.definition, opts)
+          vim.keymap.set("n", "K", vim.lsp.buf.hover, opts)
+          vim.keymap.set("n", "<leader>rn", vim.lsp.buf.rename, opts)
+          vim.keymap.set("n", "<leader>ca", vim.lsp.buf.code_action, opts)
+          if client.supports_method("textDocument/formatting") then
+            vim.keymap.set("n", "<leader>ff", vim.lsp.buf.format, opts)
+          end
+        end,
       })
 
       -- Theme
@@ -235,6 +263,21 @@
       vim.opt.updatetime = 50
       vim.opt.termguicolors = true
 
+      -- Format on save
+      vim.api.nvim_create_autocmd("BufWritePre", {
+        pattern = { "*.ts", "*.tsx", "*.js", "*.jsx", "*.json", "*.yaml", "*.md", "*.mdx" },
+        callback = function(args)
+          local fname = vim.api.nvim_buf_get_name(args.buf)
+          local clients = vim.lsp.get_clients({ bufnr = args.buf })
+          for _, client in ipairs(clients) do
+            if client.server_capabilities.documentFormattingProvider then
+              vim.lsp.buf.format({ bufnr = args.buf, id = client.id })
+              return
+            end
+          end
+        end,
+      })
+
       -- Leader key
       vim.g.mapleader = " "
 
@@ -273,5 +316,6 @@
     bash-language-server
     helix-ls
     nodejs
+    prettier
   ];
 }
