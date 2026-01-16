@@ -119,6 +119,7 @@
     git
     bun
     vscode
+    zed-editor
     nodejs
     ghostty
     gh
