@@ -120,6 +120,7 @@
     bun
     vscode
     zed-editor
+    pre-commit
     nodejs
     ghostty
     gh
