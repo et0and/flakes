@@ -1,4 +1,4 @@
-{ config, pkgs, inputs, ... }:
+{ config, pkgs, firefox-addons, ... }:
 
 {
   programs.firefox = {
@@ -20,8 +20,9 @@
         "browser.search.defaultenginename" = "DuckDuckGo";
         "browser.search.order.1" = "DuckDuckGo";
       };
-      extensions.packages = with inputs.firefox-addons.packages.${pkgs.system}; [
+      extensions.packages = with firefox-addons; [
         ublock-origin
+        onepassword-password-manager
       ];
     };
   };

@@ -159,6 +159,12 @@ in
       default = {};
       description = "Command configurations";
     };
+
+    extraCommandFiles = mkOption {
+      type = types.attrsOf types.path;
+      default = {};
+      description = "Additional command files to include (name -> path)";
+    };
   };
 
   config = mkIf cfg.enable {
@@ -178,7 +184,7 @@ in
           }) (filterAttrs (n: a: a.promptFile != null) cfg.agents))
         );
       };
-      "opencode/command" = mkIf (cfg.commands != {}) {
+      "opencode/command" = mkIf (cfg.commands != {} || cfg.extraCommandFiles != {}) {
         source = pkgs.linkFarm "opencode-commands" (
           (mapAttrsToList (name: content: {
             inherit name;
@@ -187,7 +193,10 @@ in
           (mapAttrsToList (name: command: {
             name = "${name}-template.md";
             path = command.templateFile;
-          }) (filterAttrs (n: c: c.templateFile != null) cfg.commands))
+          }) (filterAttrs (n: c: c.templateFile != null) cfg.commands)) ++
+          (mapAttrsToList (name: path: {
+            inherit name path;
+          }) cfg.extraCommandFiles)
         );
       };
     };

@@ -11,9 +11,18 @@
     };
   };
 
-  outputs = { self, nixpkgs, home-manager, ... }@inputs: {
-    nixosConfigurations.nixos = nixpkgs.lib.nixosSystem {
+  outputs = { self, nixpkgs, home-manager, ... }@inputs:
+    let
       system = "x86_64-linux";
+      pkgs = import nixpkgs {
+        inherit system;
+        config.allowUnfree = true;
+      };
+      # Build firefox-addons with our pkgs that allows unfree
+      firefox-addons = pkgs.callPackage inputs.firefox-addons {};
+    in {
+    nixosConfigurations.nixos = nixpkgs.lib.nixosSystem {
+      inherit system;
       specialArgs = { inherit inputs; };
       modules = [
         ./configuration.nix
@@ -22,7 +31,9 @@
           home-manager.useGlobalPkgs = true;
           home-manager.useUserPackages = true;
           home-manager.users.tom = ./home.nix;
-          home-manager.extraSpecialArgs = { inherit inputs; };
+          home-manager.extraSpecialArgs = { 
+            inherit inputs firefox-addons;
+          };
           home-manager.backupFileExtension = "backup";
         }
       ];

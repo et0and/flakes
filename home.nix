@@ -1,18 +1,48 @@
 { config, pkgs, inputs, ... }:
 
+let
+  cloudflare-skill = builtins.fetchTarball {
+    url = "https://github.com/dmmulroy/cloudflare-skill/archive/refs/heads/main.tar.gz";
+    sha256 = "sha256-acYWBeiGzeeZnRxRTXQZXFxUmNPzvHKaQ/N8YqTBI+s=";
+  };
+in
 {
   imports = [
     ./firefox.nix
     ./code.nix
     ./opencode.nix
+    ./neovim.nix
   ];
 
   home.username = "tom";
   home.homeDirectory = "/home/tom";
   home.stateVersion = "25.11";
+
+  # Starship prompt
+  programs.starship = {
+    enable = true;
+    enableBashIntegration = true;
+  };
+
+  # Bash configuration
+  programs.bash = {
+    enable = true;
+    enableCompletion = true;
+  };
+
+  xdg.configFile = {
+    "opencode/skill/cloudflare" = {
+      source = "${cloudflare-skill}/skill/cloudflare";
+      recursive = true;
+    };
+  };
+
   services.opencode = {
     enable = true;
     configFile = ./opencode.jsonc;
+    extraCommandFiles = {
+      "cloudflare.md" = "${cloudflare-skill}/command/cloudflare.md";
+    };
     agents = {
       "code-reviewer" = {
         description = "Reviews code for bugs, security, and best practices";
@@ -37,6 +67,11 @@
         description = "Review changes with parallel @code-review subagents";
         agent = "plan";
         templateFile = ./commands/review-template.md;
+      };
+      "summary" = {
+      	description = "Summarize the current session as a chronological transcript";
+	      agent = "build";
+	      templateFile = ./commands/summary.md;
       };
     };
   };

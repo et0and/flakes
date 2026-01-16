@@ -86,7 +86,7 @@
     description = "Tom Hackshaw";
     extraGroups = [ "networkmanager" "wheel" ];
     packages = with pkgs; [
-    # thunderbird
+    #
     ];
   };
 
@@ -124,6 +124,13 @@
     gh
     tailscale
     tmux
+    aws-vault
+    filezilla
+    ripgrep
+    deno
+    btop
+    fastfetch
+    starship
   ];
 
   programs.nix-ld.enable = true;
