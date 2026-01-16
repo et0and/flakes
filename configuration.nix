@@ -91,6 +91,7 @@
   };
 
   programs.firefox.enable = true;
+  programs.thunderbird.enable = true;
   programs._1password.enable = true;
   programs._1password-gui = {
     enable = true;
@@ -129,7 +130,6 @@
 
   programs.nix-ld.libraries = with pkgs; [
     opencode
-    wrangler
 ];
 
   # Some programs need SUID wrappers, can be configured further or are
