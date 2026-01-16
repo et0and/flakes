@@ -269,7 +269,6 @@
     lua-language-server
     typescript-language-server
     eslint_d
-    json-lsp
     yaml-language-server
     bash-language-server
     helix-ls
