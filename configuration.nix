@@ -133,6 +133,7 @@
     filezilla
     ripgrep
     deno
+    go
     btop
     signal-desktop
     fastfetch
