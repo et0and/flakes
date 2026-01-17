@@ -134,6 +134,9 @@
     ripgrep
     deno
     go
+    gopls
+    delve
+    gcc
     btop
     signal-desktop
     fastfetch

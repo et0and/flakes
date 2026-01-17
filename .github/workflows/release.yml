@@ -40,7 +40,7 @@ jobs:
         id: version
         run: |
           # Get the latest tag
-          git fetch --tags origin/master
+          git fetch --tags
           LATEST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
           echo "Latest tag: $LATEST_TAG"
 
