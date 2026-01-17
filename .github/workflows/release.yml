@@ -1,0 +1,122 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - master
+    paths-ignore:
+      - ".github/**"
+      - "*.md"
+
+permissions:
+  contents: write
+  packages: read
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/master'
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Git user
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Install Nix
+        uses: cachix/install-nix-action@v31
+        with:
+          nix_path: nixpkgs=channel:nixos-25.11
+
+      - name: Check flake
+        run: nix flake check
+
+      - name: Calculate version bump
+        id: version
+        run: |
+          # Get the latest tag
+          git fetch --tags origin/master
+          LATEST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
+          echo "Latest tag: $LATEST_TAG"
+
+          # Get commits since last tag
+          COMMITS=$(git log --oneline "${LATEST_TAG}..HEAD" 2>/dev/null || git log --oneline HEAD~20)
+          echo "Commits since last tag:"
+          echo "$COMMITS"
+
+          # Determine version bump type
+          if echo "$COMMITS" | grep -qiE '^feat.*BREAKING CHANGE|^BREAKING CHANGE'; then
+            BUMP_TYPE="major"
+          elif echo "$COMMITS" | grep -qiE '^feat:'; then
+            BUMP_TYPE="minor"
+          elif echo "$COMMITS" | grep -qiE '^(fix|perf|refactor|chore|docs|style|test|build|ci|revert):'; then
+            BUMP_TYPE="patch"
+          else
+            BUMP_TYPE="none"
+          fi
+
+          echo "Version bump type: $BUMP_TYPE"
+          echo "bump_type=$BUMP_TYPE" >> "$GITHUB_OUTPUT"
+
+      - name: Bump version
+        if: steps.version.outputs.bump_type != 'none'
+        id: tag
+        run: |
+          LATEST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
+          # Remove 'v' prefix if present
+          VERSION_NUM=${LATEST_TAG#v}
+
+          IFS='.' read -ra VERSION_PARTS <<< "$VERSION_NUM"
+          MAJOR=${VERSION_PARTS[0]:-0}
+          MINOR=${VERSION_PARTS[1]:-0}
+          PATCH=${VERSION_PARTS[2]:-0}
+
+          case ${{ steps.version.outputs.bump_type }} in
+            major)
+              MAJOR=$((MAJOR + 1))
+              MINOR=0
+              PATCH=0
+              ;;
+            minor)
+              MINOR=$((MINOR + 1))
+              PATCH=0
+              ;;
+            patch)
+              PATCH=$((PATCH + 1))
+              ;;
+          esac
+
+          NEW_TAG="v${MAJOR}.${MINOR}.${PATCH}"
+          echo "New tag: $NEW_TAG"
+          echo "tag=$NEW_TAG" >> "$GITHUB_OUTPUT"
+
+      - name: Create tag
+        if: steps.version.outputs.bump_type != 'none'
+        run: |
+          git tag -a ${{ steps.tag.outputs.tag }} -m "Release ${{ steps.tag.outputs.tag }}"
+          git push origin ${{ steps.tag.outputs.tag }}
+
+      - name: Create release
+        if: steps.version.outputs.bump_type != 'none'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.tag.outputs.tag }}
+          name: Release ${{ steps.tag.outputs.tag }}
+          body: |
+            ## Changes
+
+            ${{ steps.version.outputs.bump_type }} version bump
+
+            Commits since last release:
+            ```
+            $(git log --oneline ${{ steps.version.outputs.latest_tag }}..HEAD 2>/dev/null || echo "Initial release")
+            ```
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
