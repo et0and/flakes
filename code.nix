@@ -13,6 +13,7 @@
         catppuccin.catppuccin-vsc
       ];
       userSettings = {
+        "editor.wordWrap" = "on";
         "editor.tabSize" = 2;
         "editor.formatOnSave" = true;
         "editor.formatOnPaste" = true;

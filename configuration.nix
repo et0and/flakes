@@ -91,6 +91,7 @@
   };
 
   programs.firefox.enable = true;
+  # programs.pre-commit.enable = true;
   programs.thunderbird.enable = true;
   programs._1password.enable = true;
   programs._1password-gui = {
@@ -121,6 +122,8 @@
     vscode
     zed-editor
     pre-commit
+    pulumi
+    pulumiPackages.pulumi-language-nodejs
     nodejs
     ghostty
     gh
@@ -131,6 +134,7 @@
     ripgrep
     deno
     btop
+    signal-desktop
     fastfetch
     starship
   ];

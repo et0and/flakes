@@ -28,6 +28,16 @@ in
   programs.bash = {
     enable = true;
     enableCompletion = true;
+    initExtra = ''
+      export PATH="$HOME/.bun/bin:$PATH"
+
+      # Initialize ble.sh for fish-like autosuggestions
+      source ${pkgs.blesh}/share/blesh/ble.sh
+    '';
+  };
+
+  home.sessionVariables = {
+    PATH = "$HOME/.bun/bin:$PATH";
   };
 
   xdg.configFile = {
@@ -77,5 +87,6 @@ in
   };
 
   home.packages = with pkgs; [
+    blesh  # Fish-like autosuggestions for bash
   ];
 }
