@@ -131,6 +131,7 @@
     tmux
     aws-vault
     filezilla
+    fontforge-gtk
     ripgrep
     deno
     go
