@@ -41,6 +41,18 @@ let
   # Generate command files
   generateCommands = commands: mapAttrs' (name: command: nameValuePair "${name}.md" (commandToMarkdown name command)) commands;
 
+  # Convert a skill config to a SKILL.md file
+  skillToMarkdown = name: skill: ''
+    ---
+    name: ${name}
+    description: ${skill.description}
+    ${optionalString (skill.license != null) "license: ${skill.license}"}
+    ${optionalString (skill.compatibility != null) "compatibility: ${skill.compatibility}"}
+    ${optionalString (skill.metadata != {}) "metadata:\n${concatStringsSep "\n" (mapAttrsToList (k: v: "  ${k}: ${v}") skill.metadata)}"}
+    ---
+    ${if skill.contentFile != null then builtins.readFile skill.contentFile else skill.content}
+  '';
+
 in
 {
   options.services.opencode = {
@@ -165,6 +177,55 @@ in
       default = {};
       description = "Additional command files to include (name -> path)";
     };
+
+    skills = mkOption {
+      type = types.attrsOf (types.submodule {
+        options = {
+          description = mkOption {
+            type = types.str;
+            description = "Brief description (1-1024 chars) for agent discovery";
+          };
+          license = mkOption {
+            type = types.nullOr types.str;
+            default = null;
+            description = "Optional license identifier (e.g., MIT, Apache-2.0)";
+          };
+          compatibility = mkOption {
+            type = types.nullOr types.str;
+            default = null;
+            description = "Optional compatibility tag (e.g., opencode)";
+          };
+          metadata = mkOption {
+            type = types.attrsOf types.str;
+            default = {};
+            description = "Optional key-value metadata";
+          };
+          content = mkOption {
+            type = types.str;
+            default = "";
+            description = "Skill content (markdown body after frontmatter)";
+          };
+          contentFile = mkOption {
+            type = types.nullOr types.path;
+            default = null;
+            description = "Path to a markdown file containing the skill content (alternative to content)";
+          };
+          references = mkOption {
+            type = types.attrsOf types.path;
+            default = {};
+            description = "Reference files/directories to include (relative-path -> source-path)";
+          };
+        };
+      });
+      default = {};
+      description = "Skill configurations - each skill creates a <name>/SKILL.md in ~/.config/opencode/skill/";
+    };
+
+    extraSkills = mkOption {
+      type = types.attrsOf types.path;
+      default = {};
+      description = "External skill directories to link (name -> path to skill directory containing SKILL.md)";
+    };
   };
 
   config = mkIf cfg.enable {
@@ -197,6 +258,26 @@ in
           (mapAttrsToList (name: path: {
             inherit name path;
           }) cfg.extraCommandFiles)
+        );
+      };
+      "opencode/skill" = mkIf (cfg.skills != {} || cfg.extraSkills != {}) {
+        source = pkgs.linkFarm "opencode-skills" (
+          # SKILL.md files for each declarative skill
+          (mapAttrsToList (name: skill: {
+            name = "${name}/SKILL.md";
+            path = pkgs.writeText "opencode-skill-${name}" (skillToMarkdown name skill);
+          }) cfg.skills) ++
+          # Reference files/directories for each declarative skill
+          (concatLists (mapAttrsToList (skillName: skill:
+            mapAttrsToList (refName: refPath: {
+              name = "${skillName}/${refName}";
+              path = refPath;
+            }) skill.references
+          ) cfg.skills)) ++
+          # External skill directories (linked as-is)
+          (mapAttrsToList (name: path: {
+            inherit name path;
+          }) cfg.extraSkills)
         );
       };
     };
