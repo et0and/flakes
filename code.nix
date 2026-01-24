@@ -20,7 +20,7 @@
         "editor.defaultFormatter" = "esbenp.prettier-vscode";
         "files.trimTrailingWhitespace" = true;
         "workbench.colorTheme" = "Catppuccin Mocha";
-        "github.copilot.nextEditSuggestions.enabled": true;
+        "github.copilot.nextEditSuggestions.enabled" = true;
       };
     };
   };
