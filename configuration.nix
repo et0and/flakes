@@ -131,6 +131,8 @@
     tmux
     aws-vault
     filezilla
+    pnpm
+    ungoogled-chromium
     fontforge-gtk
     ripgrep
     deno
