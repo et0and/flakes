@@ -1,4 +1,4 @@
-{ config, pkgs, firefox-addons, ... }:
+{ config, pkgs, ... }:
 
 {
   programs.firefox = {
@@ -15,12 +15,12 @@
         "privacy.clearOnShutdown.cookies" = false;
         "privacy.clearOnShutdown.history" = false;
         "privacy.trackingprotection.enabled" = true;
-	      "extensions.autoDisableScopes" = 0;
+        "extensions.autoDisableScopes" = 0;
         "browser.newtab.url" = "about:blank";
         "browser.search.defaultenginename" = "DuckDuckGo";
         "browser.search.order.1" = "DuckDuckGo";
       };
-      extensions.packages = with firefox-addons; [
+      extensions.packages = with pkgs.firefox-addons; [
         ublock-origin
         onepassword-password-manager
       ];
