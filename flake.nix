@@ -24,9 +24,14 @@
       specialArgs = { inherit inputs; };
       modules = [
         ./configuration.nix
-        {
-          nixpkgs.overlays = [ inputs.firefox-addons.overlays.default ];
-        }
+{
+           nixpkgs.overlays = [
+             inputs.firefox-addons.overlays.default
+             (final: prev: {
+               vite-plus = prev.callPackage ./vite-plus.nix { };
+             })
+           ];
+         }
         home-manager.nixosModules.home-manager
         {
           home-manager.useGlobalPkgs = true;

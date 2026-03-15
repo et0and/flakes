@@ -114,7 +114,7 @@
 
   # List packages installed in system profile. To search, run:
   # $ nix search wget
-  environment.systemPackages = with pkgs; [
+environment.systemPackages = with pkgs; [
     neovim
     wget
     git
@@ -127,6 +127,8 @@
     nodejs
     ghostty
     gh
+    ruby
+    mise
     tailscale
     tmux
     aws-vault
@@ -144,6 +146,7 @@
     signal-desktop
     fastfetch
     starship
+    vite-plus
   ];
 
   programs.nix-ld.enable = true;

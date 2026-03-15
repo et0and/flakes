@@ -1,34 +1,34 @@
 {
   "$schema": "https://opencode.ai/config.json",
   "autoupdate": true,
-  "plugin": ["opencode-supermemory@latest"],
+  "plugin": ["opencode-supermemory@latest", "@tarquinen/opencode-dcp@latest"],
   "mcp": {
     "chrome-devtools": {
       "type": "local",
       "command": ["npx", "-y", "chrome-devtools-mcp@latest"],
-      "enabled": false
+      "enabled": false,
     },
     "cloudflare-docs": {
       "type": "remote",
-      "url": "https://docs.mcp.cloudflare.com/mcp"
+      "url": "https://docs.mcp.cloudflare.com/mcp",
     },
     "google-workspace": {
       "type": "remote",
       "url": "https://google-workspace-mcp.cto.cfdata.org/mcp",
       "oauth": {},
-      "enabled": false
+      "enabled": false,
     },
     "cloudflare-builds": {
       "type": "remote",
       "url": "https://builds.mcp.cloudflare.com/mcp",
       "oauth": {},
-      "enabled": false
+      "enabled": false,
     },
     "cloudflare-observability": {
       "type": "remote",
       "url": "https://observability.mcp.cloudflare.com/mcp",
       "oauth": {},
-      "enabled": false
-    }
-  }
+      "enabled": false,
+    },
+  },
 }
